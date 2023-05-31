@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ESP32 com MicroPython/esptool" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/FaceRecognitionAccessControl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Face_detection_code" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Face_detection_code/face_recognition" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/TrabalhoReconhecimentoFacialUnip" vcs="Git" />
+  </component>
+</project>
