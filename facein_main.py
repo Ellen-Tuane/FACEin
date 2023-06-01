@@ -16,7 +16,7 @@ import serial
 # Set up GUI
 window = tk.Tk()  # Makes main window
 window.wm_title("FaceIn - for Access Control")
-window.config(background="#74b0c0")
+window.config(background="#080303")
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 small_font = cv2.FONT_HERSHEY_COMPLEX_SMALL
@@ -73,8 +73,11 @@ def is_face_new(face_encoding, last_face_encodings):
         return True
     return not any(np.all(face_encoding == encoding) for encoding in last_face_encodings)
 
-def send_access_signal():
-    ser.write(b'1')
+def send_access_signal(a):
+    if a == 1:
+        ser.write(b'1')
+    else:
+        ser.write(b'0')
 
 def show_frame():
     # Initialize some variables
@@ -90,7 +93,7 @@ def show_frame():
     _, frame = cap.read()
     small_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
 
-    cv2.putText(frame, str(datetime.now().strftime("%H:%M %d/%m/%Y")), (20, 20), font, .5, (255, 0, 0), 2, cv2.LINE_AA)
+    cv2.putText(frame, str(datetime.now().strftime("%H:%M %d/%m/%Y")), (20, 20), font, .5, (8, 3, 3), 2, cv2.LINE_AA)
     # Resize frame of video to 1/4 size for faster face recognition processing
     small_frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
     # Only process every other frame of video to save time
@@ -144,23 +147,18 @@ def show_frame():
         else:
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)  # Changed box color to green
 
-        # Draw a label with a name below the face
-        #cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 255, 0), cv2.FILLED)  # Changed label box color to green
-
         # Check if face is recognized and display "Liberado" or "Acesso Negado"
         if name == "Não Reconhecido":
             cv2.putText(frame, "", (left + 6, bottom - 6), font, 1.0, (255, 0, 0), 1)  # Leave the label blank
             cv2.putText(frame, "Acesso Negado", (int((left + right) / 2) - 75, bottom + 25), font, 1.0, (0, 0, 255), 2, cv2.LINE_AA)  # Changed text color to red
-            
+            send_access_signal(0)
         else:
             
             cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 255, 0), cv2.FILLED)  # Changed label box color to green
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
             cv2.putText(frame, "Liberado", (int((left + right) / 2) - 60, bottom + 25), font, 1.0, (0, 255, 0), 2, cv2.LINE_AA)  # Changed text color to green
             # Send "Liberado" signal to ESP32
-            send_access_signal()
-
-        
+            send_access_signal(1)
 
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
     img = Image.fromarray(frame)
@@ -175,6 +173,7 @@ lmain.grid(row=0, column=0)
 
 # Create exit button
 button = Button(window, text="Exit", command=close_window)
+send_access_signal(0)
 button.pack()
 
 show_frame()  # Display
