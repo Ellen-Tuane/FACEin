@@ -115,13 +115,15 @@ def show_frame():
                 if face_distances[best_match_index]:
                     name = known_face_names[best_match_index]
                 face_names.append(name)
+            else:
+                # If no match was found, mark it as "Não Reconhecido"
+                face_names.append("Não Reconhecido")
 
         # Check if any recognized faces exist
         if len(face_names) > 0:
             # Register the face in the access log
             register(face_names)
-            # Send "Liberado" signal to ESP32
-            send_access_signal()
+            
             # Update last access time and last face encodings
             last_access_time = datetime.now()
             last_face_encodings = face_encodings
@@ -137,20 +139,28 @@ def show_frame():
         left *= 2
 
         # Draw a box around the face
-        cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)  # Changed box color to green
+        if name == "Não Reconhecido":
+            cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)  # Changed box color to red
+        else:
+            cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)  # Changed box color to green
 
         # Draw a label with a name below the face
-        cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 255, 0), cv2.FILLED)  # Changed label box color to green
-        cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+        #cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 255, 0), cv2.FILLED)  # Changed label box color to green
 
         # Check if face is recognized and display "Liberado" or "Acesso Negado"
-        if is_face_new(face_encoding, last_face_encodings) and (datetime.now() - last_access_time).total_seconds() < 30:
-            cv2.putText(frame, "Acesso Negado", (left, top - 10), font, 1.0, (0, 0, 255), 2)  # Changed text color to red
+        if name == "Não Reconhecido":
+            cv2.putText(frame, "", (left + 6, bottom - 6), font, 1.0, (255, 0, 0), 1)  # Leave the label blank
+            cv2.putText(frame, "Acesso Negado", (int((left + right) / 2) - 75, bottom + 25), font, 1.0, (0, 0, 255), 2, cv2.LINE_AA)  # Changed text color to red
+            
         else:
-            cv2.putText(frame, "Liberado", (left, top - 10), font, 1.0, (0, 255, 0), 2)  # Changed text color to green
-            # Print access granted message on the screen
-            print("Acesso Liberado")
+            
+            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 255, 0), cv2.FILLED)  # Changed label box color to green
+            cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+            cv2.putText(frame, "Liberado", (int((left + right) / 2) - 60, bottom + 25), font, 1.0, (0, 255, 0), 2, cv2.LINE_AA)  # Changed text color to green
+            # Send "Liberado" signal to ESP32
+            send_access_signal()
 
+        
 
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
     img = Image.fromarray(frame)
@@ -169,4 +179,3 @@ button.pack()
 
 show_frame()  # Display
 window.mainloop()
-
