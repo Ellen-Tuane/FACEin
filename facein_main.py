@@ -10,7 +10,7 @@ from PIL import ImageTk
 import face_recognition
 from os import listdir
 from os.path import isfile, join
-from datetime import datetime
+from datetime import datetime, timedelta
 import serial
 
 # Set up GUI
@@ -24,7 +24,6 @@ known_face_encodings = []
 known_face_names = []
 
 face_names = []
-
 registration = False
 
 mypath = "./people"
@@ -45,11 +44,13 @@ if not os.path.exists(file_name):
 ser = serial.Serial('/dev/ttyUSB0', 115200)  # Change '/dev/ttyUSB0' to the correct port
 
 # Graphics window
-imageFrame = tk.Frame(window, width=600, height=600, bg="white")
+imageFrame = tk.Frame(window, width=600, height=600, bg="black")  # Changed background color to black
 imageFrame.pack(pady=20)
 
 # Capture video frames
 cap = cv2.VideoCapture(0)
+
+last_access_time = datetime.now() - timedelta(seconds=31)  # Initialize last access time
 
 def close_window():
     window.quit()
@@ -67,8 +68,10 @@ def register(face_names):
                     f.write(timestamp + "\t" + name + "\n")
                     f.close()
 
-def is_face_recognized(face_names):
-    return bool(face_names)
+def is_face_new(face_encoding, last_face_encodings):
+    if not last_face_encodings:
+        return True
+    return not any(np.all(face_encoding == encoding) for encoding in last_face_encodings)
 
 def send_access_signal():
     ser.write(b'1')
@@ -80,7 +83,10 @@ def show_frame():
     process_this_frame = True
     global face_names
     face_names = []
-    global registration
+    global last_face_encodings
+    last_face_encodings = []
+    global last_access_time
+
     _, frame = cap.read()
     small_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
 
@@ -93,6 +99,7 @@ def show_frame():
         face_locations = face_recognition.face_locations(small_frame)
         face_encodings = face_recognition.face_encodings(small_frame, face_locations)
         face_names = []
+
         for face_encoding in face_encodings:
             # See if the face is a match for the known face(s)
             matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
@@ -109,6 +116,16 @@ def show_frame():
                     name = known_face_names[best_match_index]
                 face_names.append(name)
 
+        # Check if any recognized faces exist
+        if len(face_names) > 0:
+            # Register the face in the access log
+            register(face_names)
+            # Send "Liberado" signal to ESP32
+            send_access_signal()
+            # Update last access time and last face encodings
+            last_access_time = datetime.now()
+            last_face_encodings = face_encodings
+
     process_this_frame = not process_this_frame
 
     # Display the results
@@ -120,34 +137,36 @@ def show_frame():
         left *= 2
 
         # Draw a box around the face
-        cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+        cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)  # Changed box color to green
 
         # Draw a label with a name below the face
-        cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
+        cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 255, 0), cv2.FILLED)  # Changed label box color to green
         cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
 
         # Check if face is recognized and display "Liberado" or "Acesso Negado"
-        if is_face_recognized(face_names):
-            cv2.putText(frame, "Liberado", (left, top - 10), font, 1.0, (0, 255, 0), 2)
-            frame[top - 40:top - 10, left:right, :] = (0, 255, 0)
-            # Send "Liberado" signal to ESP32
-            send_access_signal()
-            # Register the face in the access log
-            register(face_names)
+        if is_face_new(face_encoding, last_face_encodings) and (datetime.now() - last_access_time).total_seconds() < 30:
+            cv2.putText(frame, "Acesso Negado", (left, top - 10), font, 1.0, (0, 0, 255), 2)  # Changed text color to red
         else:
-            cv2.putText(frame, "Acesso Negado", (left, top - 10), font, 1.0, (0, 0, 255), 2)
-            frame[top - 40:top - 10, left:right, :] = (0, 0, 255)
+            cv2.putText(frame, "Liberado", (left, top - 10), font, 1.0, (0, 255, 0), 2)  # Changed text color to green
+            # Print access granted message on the screen
+            print("Acesso Liberado")
+
 
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
     img = Image.fromarray(frame)
     imgtk = ImageTk.PhotoImage(image=img)
-    display1.imgtk = imgtk  # Shows frame for display 1
-    display1.configure(image=imgtk)
-    window.after(10, show_frame)
+    lmain.imgtk = imgtk
+    lmain.configure(image=imgtk)
+    lmain.after(10, show_frame)
 
-display1 = tk.Label(imageFrame)
-display1.pack()
+
+lmain = tk.Label(imageFrame)
+lmain.grid(row=0, column=0)
+
+# Create exit button
+button = Button(window, text="Exit", command=close_window)
+button.pack()
 
 show_frame()  # Display
-window.mainloop()  # Starts GUI
+window.mainloop()
 
