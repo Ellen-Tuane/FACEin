@@ -59,14 +59,16 @@ def register(face_names):
     for name in face_names:
         if name != "Unknown":
             now = datetime.now()
-            timestamp = str(now)[11:-7]
+            timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
             with open(file_name, 'r') as file:
                 lines = file.readlines()
                 last_line = lines[-1] if lines else ""
-                if not last_line.startswith(timestamp):
+                if not last_line.startswith(timestamp) and now - last_access_time > timedelta(seconds=15):
                     f = open(file_name, 'a+')
                     f.write(timestamp + "\t" + name + "\n")
                     f.close()
+
+
 
 def is_face_new(face_encoding, last_face_encodings):
     if not last_face_encodings:
