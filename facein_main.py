@@ -167,7 +167,7 @@ def show_frame():
     imgtk = ImageTk.PhotoImage(image=img)
     lmain.imgtk = imgtk
     lmain.configure(image=imgtk)
-    lmain.after(10, show_frame)
+    lmain.after(500, show_frame)
 
 
 lmain = tk.Label(imageFrame)
