@@ -23,7 +23,7 @@ background_image = Image.open("./Portal/images/background.png")
 
 # Get image dimensions
 largura_da_janela, altura_da_janela = background_image.size
-background_image = background_image.resize((largura_da_janela, altura_da_janela), Image.ANTIALIAS)
+#window.geometry(f"{largura_da_janela}x{altura_da_janela}")
 
 # Create PhotoImage from background image
 background_photo = ImageTk.PhotoImage(background_image)
@@ -31,7 +31,6 @@ background_photo = ImageTk.PhotoImage(background_image)
 # Create label for background image
 background_label = tk.Label(window, image=background_photo)
 background_label.place(x=0, y=0, relwidth=1, relheight=1)
-
 
 # Load and display logo image
 logo_image = Image.open("./Portal/images/logo-horizontal.png")
@@ -71,11 +70,11 @@ def send_access_signal(a):
         ser.write(b'0')
 
 # Graphics window
-imageFrame = tk.Frame(window, width=600, height=600, bg="black")  # Changed background color to black
+imageFrame = tk.Frame(window, width=largura_da_janela, height=altura_da_janela, bg="black")
 imageFrame.pack(pady=20)
 
 # Capture video frames
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 
 last_access_time = datetime.now() - timedelta(seconds=31)  # Initialize last access time
 
@@ -95,14 +94,10 @@ def register(face_names):
                     f.write(timestamp + "\t" + name + "\n")
                     f.close()
 
-
-
 def is_face_new(face_encoding, last_face_encodings):
     if not last_face_encodings:
         return True
     return not any(np.all(face_encoding == encoding) for encoding in last_face_encodings)
-
-
 
 def show_frame():
     # Initialize some variables
@@ -151,7 +146,7 @@ def show_frame():
         if len(face_names) > 0:
             # Register the face in the access log
             register(face_names)
-            
+
             # Update last access time and last face encodings
             last_access_time = datetime.now()
             last_face_encodings = face_encodings
@@ -178,9 +173,8 @@ def show_frame():
             cv2.putText(frame, "Acesso Negado", (int((left + right) / 2) - 75, bottom + 25), font, 1.0, (0, 0, 255), 2, cv2.LINE_AA)  # Changed text color to red
             send_access_signal(0)
         else:
-
             cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 255, 0), cv2.FILLED)  # Changed label box color to green
-            cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+            cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 2)
             cv2.putText(frame, "Liberado", (int((left + right) / 2) - 60, bottom + 25), font, 1.0, (0, 255, 0), 2, cv2.LINE_AA)  # Changed text color to green
             # Send "Liberado" signal to ESP32
             send_access_signal(1)
@@ -191,7 +185,6 @@ def show_frame():
     lmain.imgtk = imgtk
     lmain.configure(image=imgtk)
     lmain.after(10, show_frame)
-
 
 lmain = tk.Label(imageFrame)
 lmain.grid(row=0, column=0)
