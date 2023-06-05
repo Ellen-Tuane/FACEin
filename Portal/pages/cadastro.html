@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/cadastro.css" />
+    <link rel="stylesheet" href="/styles/reset.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha384-mDEB1OkI4yzbKwMLJ2oWp0IBeI5DcYAf4r7GEmfOeJXq1zWVAJj+Nj0I8DKi5YDz" crossorigin="anonymous">
+    <title>Cadastro</title>
+  </head>
+  <body>
+    <header>
+      <div class="logo"></div>
+      <div class="header-container">
+        <h1 class="portal-titulo">Efetue o cadastro do novo usuário</h1>
+        <a href="/pages/portal.html" class="botao-cadastrar">Voltar</a>
+      </div>
+    </header>
+    <main>
+      <div class="container">
+        <form id="login-form">
+          <h1 class="login-title">Insira os dados do novo usuário:</h1>
+          <div class="form-group">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required class="input"/>
+          </div>
+          <div class="form-group">
+            <label for="endereco">Endereço:</label>
+            <input type="text" id="endereco" name="endereco" required class="input"/>
+          </div>
+          <div class="form-group">
+            <label for="telefone">Telefone:</label>
+            <input type="text" id="telefone" name="telefone" required class="input"/>
+          </div>
+          <div class="form-group">
+            <label for="foto">Foto:</label>
+            <input type="file" id="foto" name="foto" required />
+          </div>
+          <button class="login-button" type="submit">Cadastrar</button>
+        </form>
+        <p id="login-error" class="error-message"></p>
+      </div>
+    </main>
+    <footer></footer>
+
+    <script src="/scripts/cadastro.js"></script>
+  </body>
+</html>

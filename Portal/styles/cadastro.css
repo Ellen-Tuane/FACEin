@@ -1,0 +1,116 @@
+header {
+  height: 15rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  background-color: #3c1dab;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+.header-container {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.logo {
+  width: 12rem;
+  height: 3rem;
+  margin-left: 2rem;
+  background-image: url("../images/logo-horizontal.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.portal-titulo {
+  max-width: 30%;
+  margin: 2rem 0 2rem 2rem;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #d6d2e3;
+}
+
+.botao-cadastrar {
+  width: 15rem;
+  padding: .5rem;
+  border-radius: 2rem;
+  margin-right: 1rem;
+  border: none;
+  background-color: #d6d2e3;
+  color: #000000;
+  font-size: 1.5rem;
+  font-weight: 500;
+  text-align: center;
+}
+.botao-cadastrar:hover {
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+main {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  background-color: #fafafa;
+}
+
+.container {
+  width: 50%;
+  height: fit-content;
+  margin-top: -4.5rem;
+  margin-right: 2rem;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  background-color: #ffffff;
+  box-shadow: 0px 7px 29px 2px rgba(125, 125, 125, 0.57);
+  border-radius: 1rem;
+}
+
+.login-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #3c1dab;
+}
+form{
+    width: 100%;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+.input {
+
+  height: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #120052;
+  box-shadow: unset;
+}
+
+.input:focus {
+  border: 1px solid #120052;
+  outline: none;
+}
+
+.login-button {
+  width: 100%;
+  height: 3rem;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  margin-top: 1rem;
+  border: none;
+  background-color: #3c1dab;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 500;
+}
+.login-button:hover {
+  cursor: pointer;
+  border: 1px solid #120052;
+}
