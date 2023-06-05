@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const dataUriToBuffer = require("data-uri-to-buffer")
 const app = express();
+app.use(bodyParser.json({ limit: '10mb' }));
 
 app.use(bodyParser.json());
 
