@@ -18,6 +18,27 @@ window = tk.Tk()  # Makes main window
 window.wm_title("FaceIn - for Access Control")
 window.config(background="#080303")
 
+# Load and resize background image
+background_image = Image.open("./Portal/images/background.png")
+
+# Get image dimensions
+largura_da_janela, altura_da_janela = background_image.size
+background_image = background_image.resize((largura_da_janela, altura_da_janela), Image.ANTIALIAS)
+
+# Create PhotoImage from background image
+background_photo = ImageTk.PhotoImage(background_image)
+
+# Create label for background image
+background_label = tk.Label(window, image=background_photo)
+background_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+
+# Load and display logo image
+logo_image = Image.open("./Portal/images/logo-horizontal.png")
+logo_photo = ImageTk.PhotoImage(logo_image)
+logo_label = tk.Label(window, image=logo_photo)
+logo_label.pack()
+
 font = cv2.FONT_HERSHEY_SIMPLEX
 small_font = cv2.FONT_HERSHEY_COMPLEX_SMALL
 known_face_encodings = []
@@ -43,6 +64,12 @@ if not os.path.exists(file_name):
 # Open serial connection with ESP32
 ser = serial.Serial('/dev/ttyUSB0', 115200)  # Change '/dev/ttyUSB0' to the correct port
 
+def send_access_signal(a):
+    if a == 1:
+        ser.write(b'1')
+    else:
+        ser.write(b'0')
+
 # Graphics window
 imageFrame = tk.Frame(window, width=600, height=600, bg="black")  # Changed background color to black
 imageFrame.pack(pady=20)
@@ -63,7 +90,7 @@ def register(face_names):
             with open(file_name, 'r') as file:
                 lines = file.readlines()
                 last_line = lines[-1] if lines else ""
-                if not last_line.startswith(timestamp) and now - last_access_time > timedelta(seconds=15):
+                if not last_line.startswith(timestamp) and now - last_access_time > timedelta(seconds=5):
                     f = open(file_name, 'a+')
                     f.write(timestamp + "\t" + name + "\n")
                     f.close()
@@ -75,11 +102,7 @@ def is_face_new(face_encoding, last_face_encodings):
         return True
     return not any(np.all(face_encoding == encoding) for encoding in last_face_encodings)
 
-def send_access_signal(a):
-    if a == 1:
-        ser.write(b'1')
-    else:
-        ser.write(b'0')
+
 
 def show_frame():
     # Initialize some variables
@@ -155,7 +178,7 @@ def show_frame():
             cv2.putText(frame, "Acesso Negado", (int((left + right) / 2) - 75, bottom + 25), font, 1.0, (0, 0, 255), 2, cv2.LINE_AA)  # Changed text color to red
             send_access_signal(0)
         else:
-            
+
             cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 255, 0), cv2.FILLED)  # Changed label box color to green
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
             cv2.putText(frame, "Liberado", (int((left + right) / 2) - 60, bottom + 25), font, 1.0, (0, 255, 0), 2, cv2.LINE_AA)  # Changed text color to green
@@ -167,7 +190,7 @@ def show_frame():
     imgtk = ImageTk.PhotoImage(image=img)
     lmain.imgtk = imgtk
     lmain.configure(image=imgtk)
-    lmain.after(500, show_frame)
+    lmain.after(10, show_frame)
 
 
 lmain = tk.Label(imageFrame)
