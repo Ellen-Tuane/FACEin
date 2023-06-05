@@ -16,6 +16,10 @@ getUsers = () => {
   return JSON.parse(fs.readFileSync("logs/users.json", "utf-8"));
 };
 
+getLoginUsers = () => {
+  return JSON.parse(fs.readFileSync("logs/loginUsers.json", "utf-8"));
+};
+
 saveUsersJsonFile = (usersArray) => {
   fs.writeFileSync(
     "logs/users.json",
@@ -50,6 +54,22 @@ app.post("/register", (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
+app.post("/loginUsers", (req, res) => {
+  try {
+    const users = getLoginUsers();
+
+    if (users.length < 1) {
+      return res.status(404).json({ error: "Não foram encontrados usuários" });
+    }
+
+    return res.status(200).json(users);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+
 
 app.get("/users", (req, res) => {
   try {
